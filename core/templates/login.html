@@ -20,9 +20,15 @@
 
         <h2>Hello,</h2>
         <h3>Welcome Back</h3>
-<div id="loginError" class="login-error" style="display:none;">
-  Please fill all fields correctly.
-</div>
+{% if messages %}
+  {% for message in messages %}
+    <div id="loginError" class="login-error {{ message.tags }}">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% else %}
+  <div id="loginError" class="login-error" style="display:none;"></div>
+{% endif %}
 
 
         <form method="post" novalidate>
@@ -79,13 +85,8 @@
     errorBox.style.display = "none";
   }
 
-  // ❌ STOP auto-hiding on random clicks
-  // ✅ Only hide when user FIXES input
-
-  roleInputs.forEach(radio => {
-    radio.addEventListener("change", hideError);
-  });
-
+  // Hide only when user fixes input
+  roleInputs.forEach(radio => radio.addEventListener("change", hideError));
   usernameInput.addEventListener("input", hideError);
   passwordInput.addEventListener("input", hideError);
 
@@ -102,17 +103,18 @@
 
     if (!username) {
       e.preventDefault();
-      showError("Please enter your username.");
+      showError("Username is required.");
       return;
     }
 
     if (!password) {
       e.preventDefault();
-      showError("Please enter your password.");
+      showError("Password is required.");
       return;
     }
   });
 </script>
+
 
 
 </body>

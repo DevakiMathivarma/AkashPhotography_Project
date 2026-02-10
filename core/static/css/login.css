@@ -205,15 +205,13 @@ button:hover {
 
 
 /* validation msg */
-/* ERROR MESSAGES */
 .login-error {
-  width: 100%;
-  max-width: 500px;
-  background: #ffe5e5;
-  color: #c62828;
+  background: #ffe6e6;
+  color: #b30000;
   padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  border-radius: 6px;
+  margin-bottom: 15px;
   font-size: 14px;
 }
+
 
