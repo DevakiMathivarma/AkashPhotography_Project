@@ -29,6 +29,7 @@ urlpatterns = [
     # ==========================
     # AUTH
     # ==========================
+    path("", login_view, name="home"),
     path("login/", login_view, name="login"),
 
     # ==========================
