@@ -1,0 +1,54 @@
+<div class="projects-list-view">
+
+  <!-- HEADER -->
+  <div class="list-header">
+    <span>Project ID</span>
+    <span>Project Name</span>
+    <span>Event Date</span>
+    <span>Assigned To</span>
+    <span>Tasks</span>
+    <span>Task Status</span>
+  </div>
+
+  <!-- PRE PRODUCTION -->
+  <div class="list-section pre">
+    <div class="list-section-title">● PRE PRODUCTION</div>
+
+    {% for p in pre_cards %}
+    <div class="list-row">
+      <span>AK-{{ p.id }}</span>
+      <span>{{ p.client_name }}</span>
+      <span>{{ p.start_date }} – {{ p.end_date }}</span>
+
+      <span class="list-avatars">
+        {% for m in p.team %}
+          <span class="avatar">{{ m.initials }}</span>
+        {% endfor %}
+      </span>
+
+      <span class="list-tasks">
+        {% for t in p.tasks %}
+          <span class="task-chip">{{ t.done }}/{{ t.total }} {{ t.phase }}</span>
+        {% endfor %}
+      </span>
+
+      <span class="status-badge inprogress">In-Progress</span>
+    </div>
+    {% empty %}
+      <div class="list-empty">No projects</div>
+    {% endfor %}
+  </div>
+
+  <!-- SELECTION -->
+  <div class="list-section selection">
+    <div class="list-section-title">● SELECTION</div>
+    <div class="list-empty">No projects</div>
+  </div>
+
+  <!-- POST -->
+  <div class="list-section post">
+    <div class="list-section-title">● POST PRODUCTION</div>
+    <div class="list-empty">No projects</div>
+  </div>
+
+</div>

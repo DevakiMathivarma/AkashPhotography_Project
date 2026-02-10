@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Akash Photography{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <!-- font family -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=League+Spartan:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+<!-- font awsome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+</head>
+<!-- FOLLOW-UP PANEL -->
+<div class="followup-panel" id="followupPanel">
+
+    <div class="followup-header">
+        <div>
+            <h3>🔔 Follow-ups</h3>
+            <p>You have <strong id="followupTotal">0</strong> reminders</p>
+        </div>
+        <button class="close-btn" onclick="closeFollowup()">×</button>
+    </div>
+
+    <div class="followup-summary">
+        <div class="summary-item overdue">
+            <span>Overdue</span>
+            <strong id="countOverdue">0</strong>
+        </div>
+        <div class="summary-item today">
+            <span>Today</span>
+            <strong id="countToday">0</strong>
+        </div>
+        <div class="summary-item upcoming">
+            <span>Upcoming</span>
+            <strong id="countUpcoming">0</strong>
+        </div>
+    </div>
+
+    <div class="followup-tabs">
+        <button class="active" onclick="switchTab('today')">Today</button>
+        <button onclick="switchTab('overdue')">Overdue</button>
+        <button onclick="switchTab('upcoming')">Upcoming</button>
+    </div>
+
+    <div class="followup-list" id="followupList">
+        <!-- injected by JS -->
+    </div>
+</div>
+
+<body>
+
+<!-- TOP MAROON STRIP -->
+<div class="top-strip"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <!-- LEFT : LOGO -->
+    <div class="nav-left">
+        <img src="{% static 'images/logo.png' %}" alt="Akash" class="logo">
+    </div>
+ <div class="nav-center">
+    <!-- CENTER : MENU -->
+    <ul class="nav-menu">
+
+        <li class="nav-item" id="nav-dashboard">
+            <img src="{% static 'images/dashboard.png' %}">
+            <span>Dashboard</span>
+        </li>
+
+        <li class="nav-item active" id="nav-leads">
+            <img src="{% static 'images/leads.png' %}">
+            <span>Leads</span>
+        </li>
+
+        <li class="nav-item" id="nav-projects">
+            <img src="{% static 'images/project.png' %}">
+            <span>Projects</span>
+        </li>
+
+        <li class="nav-item">
+            <img src="{% static 'images/session.png' %}">
+            <span>Session</span>
+        </li>
+
+        <li class="nav-item">
+            <img src="{% static 'images/invoice.png' %}">
+            <span>Project Invoice</span>
+        </li>
+
+        <li class="nav-item employee">
+            <img src="{% static 'images/employees.png' %}">
+            <span>Employees</span>
+        </li>
+
+    </ul>
+    </div>
+
+    <!-- RIGHT : NOTIFICATION + PROFILE -->
+    <div class="nav-right">
+        <div class="notification" onclick="openFollowup()">
+            <img src="{% static 'images/notification.png' %}">
+             <span class="notif-badge" id="followupBadge">0</span>
+        </div>
+        <div class="profile-circle">AK</div>
+    </div>
+
+</nav>
+
+{% block content %}{% endblock %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const navRoutes = [
+        { id: "nav-projects", path: "/projects/" },
+        { id: "nav-leads", path: "/leads/" },
+       
+    ];
+
+    const currentPath = window.location.pathname;
+
+    /* 🔥 STEP 1: REMOVE ALL ACTIVE CLASSES */
+    document.querySelectorAll(".nav-item.active")
+        .forEach(item => item.classList.remove("active"));
+
+    /* 🔥 STEP 2: FIND BEST MATCH (ONLY ONE) */
+    for (const route of navRoutes) {
+        if (currentPath === route.path || currentPath.startsWith(route.path)) {
+            const el = document.getElementById(route.id);
+            if (el) el.classList.add("active");
+            break; // ❗ STOP after first match
+        }
+    }
+
+    /* 🔥 STEP 3: CLICK NAVIGATION */
+    navRoutes.forEach(route => {
+        const el = document.getElementById(route.id);
+        if (!el) return;
+
+        el.addEventListener("click", () => {
+            window.location.href = route.path;
+        });
+    });
+
+});
+</script>
+
+
+</body>
+</html>

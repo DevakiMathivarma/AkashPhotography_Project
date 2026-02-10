@@ -1,0 +1,219 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+:root {
+    --primary: #9e2a2f; /* Maroon */
+}
+
+body {
+    height: 100vh;
+}
+
+.login-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* LEFT IMAGE */
+.left {
+    width: 50%;
+}
+
+.left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* RIGHT SECTION */
+.right {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    animation: fadeUp 1s ease;
+}
+
+.logo {
+    width: 190px;
+    margin-bottom: 25px;
+}
+
+.right h2 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.right h3 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* RADIO BUTTONS */
+.roles {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 30px;
+
+    width: 100%;              /* ✅ ADD */
+    max-width: 500px;         /* ✅ SAME AS INPUT */
+    justify-content: center;  /* ✅ CENTER RADIO BUTTONS */
+}
+.radio {
+    position: relative;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000;
+}
+
+.radio input {
+    display: none;
+}
+
+.radio span:first-of-type {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #999;
+    border-radius: 50%;
+    position: relative;
+    transition: border-color 0.3s;
+}
+
+.radio span:first-of-type::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: transparent;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: background 0.3s;
+}
+
+/* RADIO CHECKED STATE */
+.radio input:checked + span {
+    border-color: var(--primary);
+}
+
+.radio input:checked + span::after {
+    background: var(--primary);
+}
+
+/* ✅ TEXT COLOR CHANGE FIX */
+.radio-text {
+    transition: color 0.3s;
+}
+
+.radio input:checked ~ .radio-text {
+    color: var(--primary);
+}
+/* INPUT GROUP */
+.input-group {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 22px;
+}
+
+.input-group img {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    width: 18px;
+    transform: translateY(-50%);
+    opacity: 0.6;
+}
+
+.input-group input {
+    width: 500px;
+    padding: 14px 14px 14px 45px;
+    border: 1.5px solid #999;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-group label {
+    position: absolute;
+    top: 50%;
+    left: 45px;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 14px;
+    pointer-events: none;
+    transition: 0.3s;
+    background: white;
+    padding: 0 5px;
+}
+
+/* FLOATING LABEL */
+.input-group input:focus + label,
+.input-group input:valid + label {
+    top: -1px;
+    font-size: 12px;
+    color: var(--primary);
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    max-width: 500px;
+    padding: 14px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(158, 42, 47, 0.3);
+}
+
+/* ANIMATION */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* validation msg */
+/* ERROR MESSAGES */
+.login-error {
+  width: 100%;
+  max-width: 500px;
+  background: #ffe5e5;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+

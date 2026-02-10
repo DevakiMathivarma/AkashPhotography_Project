@@ -1,0 +1,130 @@
+<!-- BOARD -->
+<div class="projects-board">
+
+    <!-- TO BE ASSIGNED -->
+    <div class="project-column" data-status="ASSIGNED">
+        <div class="column-head purple">
+            ● To Be Assigned <span class="count">{{ assigned|length }}</span>
+        </div>
+
+        {% for p in assigned %}
+        <div class="project-card" draggable="true" data-id="{{ p.id }}">
+            <div class="code">AK {{ p.id }}</div>
+            <h4>{{ p.client_name }}</h4>
+
+            <div class="meta">
+                <span>📅 {{ p.event_type }}</span>
+                <span>📆 {{ p.start_date }} – {{ p.end_date }}</span>
+            </div>
+
+            <div class="task-row">
+                <span class="badge new">New</span>
+                <span class="badge gray">00/50 Tasks</span>
+            </div>
+
+            <div class="avatars">
+                <span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PRE PRODUCTION -->
+    <!-- PRE PRODUCTION -->
+    <div class="project-column" data-status="PRE">
+        <div class="column-head blue">
+            ● Pre Production <span class="count">{{ pre_cards|length }}</span>
+        </div>
+
+        {% for p in pre_cards %}
+        <div class="project-card pre-card" data-id="{{ p.id }}">
+
+            <!-- HEADER -->
+            <div class="pre-card-header">
+                <span class="pre-card-code">AK {{ p.id }}</span>
+                <span class="pre-card-status {% if p.is_completed %}completed{% else %}inprogress{% endif %}">
+                    {% if p.is_completed %}Completed{% else %}In-Progress{% endif %}
+                </span>
+
+            </div>
+
+            <!-- CLIENT -->
+            <h4 class="pre-card-client">{{ p.client_name }}</h4>
+
+            <hr class="pre-card-divider" />
+
+            <!-- EVENT INFO -->
+            <div class="pre-card-event">
+                <div>📸 {{ p.event_type }}</div>
+                <div>📅 {{ p.start_date }} – {{ p.end_date }}</div>
+            </div>
+
+            <hr class="pre-card-divider" />
+
+            <!-- TASKS (2 PER ROW) -->
+            <div class="pre-card-task-grid">
+                {% for t in p.tasks %}
+                <div class="pre-card-task-chip">
+                    {{ t.done }} / {{ t.total }} {{ t.phase }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="pre-card-divider" />
+
+            <!-- TEAM -->
+            <div class="pre-card-team">
+                {% for m in p.team %}
+                <span class="pre-card-avatar">{{ m.initials }}</span>
+                {% endfor %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+
+
+    <!-- SELECTION -->
+    <div class="project-column" data-status="SELECTION">
+        <div class="column-head yellow">
+            ● Selection <span class="count">{{ selection|length }}</span>
+        </div>
+
+        {% for p in selection %}
+        <div class="project-card" draggable="false" data-id="{{ p.id }}">
+            <div class="code">AK {{ p.id }}</div>
+            <h4>{{ p.client_name }}</h4>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- POST -->
+    <div class="project-column" data-status="POST">
+        <div class="column-head red">
+            ● Post Production <span class="count">{{ post|length }}</span>
+        </div>
+
+        {% for p in post %}
+        <div class="project-card" draggable="false" data-id="{{ p.id }}">
+            <div class="code">AK {{ p.id }}</div>
+            <h4>{{ p.client_name }}</h4>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- COMPLETED -->
+    <div class="project-column" data-status="COMPLETED">
+        <div class="column-head green">
+            ● Completed <span class="count">{{ completed|length }}</span>
+        </div>
+
+        {% for p in completed %}
+        <div class="project-card">
+            <div class="code">AK {{ p.id }}</div>
+            <h4>{{ p.client_name }}</h4>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>

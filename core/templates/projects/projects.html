@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/projects.css' %}">
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<div class="projects-wrapper">
+
+    <!-- TITLE -->
+    <h2 class="page-title">Projects</h2>
+
+    <!-- TOOLBAR -->
+    <div class="project-toolbar">
+        <span class="active">▦ Board View</span>
+        <span>☰ List View</span>
+        <span>📊 Projects Overview</span>
+        <span>⚙ Filters</span>
+    </div>
+
+    <!-- BOARD -->
+       <!-- BOARD VIEW -->
+  <div id="boardView">
+    {% include "projects/_board_view.html" %}
+  </div>
+
+  <!-- LIST VIEW -->
+  <div id="listView" style="display:none">
+    {% include "projects/_list_view.html" %}
+  </div>
+    
+</div>
+
+<!-- =============================== -->
+<!-- INITIAL ASSIGN INFO POPUP -->
+<!-- =============================== -->
+<div class="assign-popup" id="assignPopup" data-count="{{ assigned|length }}">
+    <div class="popup-box">
+        <button onclick="closePopup()">×</button>
+        <h2>You Have {{ assigned|length }} Projects To Assign Team</h2>
+        <button class="primary" onclick="closePopup()">Assign Now</button>
+    </div>
+</div>
+<div class="assign-popup-team" id="teamAssignPopup">
+    <div class="popup-team-box figma-popup">
+
+        <button class="close-btn" onclick="closeTeamPopup()">×</button>
+
+        <!-- TABS WRAPPER (WHITE) -->
+        <div class="tabs-wrapper">
+            <div class="figma-tabs">
+                <span class="active">Upcoming Event</span>
+                <span>Past Event</span>
+                <span>To be decided</span>
+            </div>
+        </div>
+
+        <!-- MAIN WHITE BODY -->
+        <div class="popup-body">
+
+            <!-- PROJECT DETAILS -->
+            <h3 class="figma-title">Projects Details</h3>
+            <div class="section-grey">
+                <div class="detail-row">📌 <span id="popupClient"></span></div>
+                <div class="detail-row">📍 <span id="popupLocation"></span></div>
+                <div class="detail-row">
+                    ⏰ <span id="popupTime"></span>
+                    <span class="sep">•</span>
+                    ⏳ <span id="popupDuration"></span>
+                </div>
+                <div class="detail-row">📅 <span id="popupDates"></span></div>
+            </div>
+
+            <!-- TEAM MEMBERS -->
+            <h3 class="figma-title">Team Members</h3>
+            <div class="section-grey">
+
+                <div class="team-legend">
+                    <span class="available">✓ Available Team Members</span>
+                    <span class="booked">✓ Booked on Other Sessions</span>
+                </div>
+
+                <!-- INNER WHITE BOX -->
+                <div class="team-inner-box">
+
+                    <div class="team-section">
+                        <h4>General</h4>
+                        <div class="pill-row">
+                            {% for m in general_team %}
+                            <span class="member-pill selectable" data-id="{{ m.id }}">{{
+                                m.user.username|slice:":2"|upper }}</span>
+                            {% empty %}
+                            <span class="no-member">No members</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="team-section">
+                        <h4>Pre Production</h4>
+                        <div class="pill-row">
+                            {% for m in pre_team %}
+                            <span class="member-pill selectable" data-id="{{ m.id }}">{{
+                                m.user.username|slice:":2"|upper }}</span>
+                            {% empty %}
+                            <span class="no-member">No members</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="team-section">
+                        <h4>Post Production</h4>
+                        <div class="pill-row scroll-pills">
+                            {% for m in post_team %}
+                            <span class="member-pill selectable" data-id="{{ m.id }}">{{
+                                m.user.username|slice:":2"|upper }}</span>
+                            {% empty %}
+                            <span class="no-member">No members</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="popup-footer">
+                <input type="date" class="figma-date">
+                <button class="figma-send" onclick="proceedToTasks()">➜ Send Notifications</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- TASK ASSIGN POPUP -->
+<div class="task-overlay" id="taskPopup">
+    <div class="task-modal">
+
+        <button class="task-close-btn" onclick="closeTaskPopup()">×</button>
+
+        <h3 class="task-modal-title">Tasks</h3>
+
+        <!-- TASK TABLE -->
+        <div id="taskContainer"></div>
+
+        <div class="task-footer">
+            <button class="task-save-btn" onclick="finishAssignment()">
+                Save & Assign
+            </button>
+        </div>
+
+    </div>
+</div>
+<div id="saveToast" class="save-toast">✔ Saved</div>
+
+<script src="{% static 'js/projects.js' %}"></script>
+{% endblock %}

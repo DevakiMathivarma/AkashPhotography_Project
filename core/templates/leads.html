@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/leads.css' %}">
+<!-- font awsome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<div class="leads-wrapper">
+
+    <!-- LEADS OVERVIEW HEADER -->
+    <div class="overview-header">
+        <!-- FILTER DRAWER -->
+        <div class="filter-drawer" id="filterDrawer">
+
+            <!-- HEADER -->
+            <div class="filter-header">
+                <h3>Filters</h3>
+                <button class="close-filter" onclick="closeFilters()">×</button>
+            </div>
+
+            <!-- BODY -->
+            <div class="filter-body">
+
+                <!-- 1️⃣ EVENT DATE -->
+                <div class="filter-section">
+                    <h4>Event Date</h4>
+                    <label><input type="radio" name="event_date" value="7"> Next 7 Days</label>
+                    <label><input type="radio" name="event_date" value="14"> Next 14 Days</label>
+                    <label><input type="radio" name="event_date" value="month"> This Month</label>
+
+                    <div class="range">
+                        <input type="date" id="event_from">
+                        <input type="date" id="event_to">
+                    </div>
+                </div>
+
+                <!-- 2️⃣ FOLLOW-UP DATE -->
+                <div class="filter-section">
+                    <h4>Follow-up</h4>
+                    <label><input type="checkbox" name="follow_up" value="today"> Today</label>
+                    <label><input type="checkbox" name="follow_up" value="week"> This Week</label>
+                    <label><input type="checkbox" name="follow_up" value="overdue"> Overdue</label>
+                </div>
+
+                <!-- 3️⃣ STATUS -->
+                <div class="filter-section">
+                    <h4>Status</h4>
+                    <label><input type="checkbox" value="NEW"> New</label>
+                    <label><input type="checkbox" value="FOLLOW_UP"> Follow Up</label>
+                    <label><input type="checkbox" value="ACCEPTED"> Accepted</label>
+                    <label><input type="checkbox" value="LOST"> Lost</label>
+                </div>
+
+                <!-- 4️⃣ AMOUNT -->
+                <div class="filter-section">
+                    <h4>Quoted Amount</h4>
+                    <label><input type="radio" name="amount" value="low"> Below ₹20,000</label>
+                    <label><input type="radio" name="amount" value="mid"> ₹20k – ₹50k</label>
+                    <label><input type="radio" name="amount" value="high"> Above ₹50k</label>
+
+                    <div class="range">
+                        <input type="number" placeholder="Min">
+                        <input type="number" placeholder="Max">
+                    </div>
+                </div>
+
+                <!-- 5️⃣ PAYMENT -->
+                <div class="filter-section">
+                    <h4>Payment</h4>
+                    <label><input type="checkbox"> Fully Paid</label>
+                    <label><input type="checkbox"> Partially Paid</label>
+                    <label><input type="checkbox"> Not Paid</label>
+                </div>
+
+                <!-- 6️⃣ EVENT TYPE -->
+                <div class="filter-section">
+                    <h4>Event Type</h4>
+                    <label><input type="checkbox"> Wedding</label>
+                    <label><input type="checkbox"> Reception</label>
+                    <label><input type="checkbox"> Baby Shower</label>
+                    <label><input type="checkbox"> Engagement</label>
+                </div>
+
+                <!-- 7️⃣ PRIORITY -->
+                <div class="filter-section">
+                    <h4>Priority</h4>
+                    <label class="urgent">🔴 Urgent</label>
+                    <label class="upcoming">🟡 Upcoming</label>
+                    <label class="safe">🟢 Safe</label>
+                </div>
+
+                <!-- SEARCH -->
+                <div class="filter-section">
+                    <h4>Search</h4>
+                    <input type="text" placeholder="Name / Phone / Email / Location">
+                </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="filter-footer">
+                <button class="clear-btn" onclick="clearFilters()">Clear All</button>
+                <button class="apply-btn" onclick="applyFilters()">Apply Filters</button>
+            </div>
+        </div>
+
+        <div class="overview-left">
+            <h2>Leads Overview</h2>
+
+            <div class="stats">
+                <div>
+                    <span>Total Leads</span>
+                    <strong>{{ total_leads }}</strong>
+                </div>
+                <div>
+                    <span>Total Amount</span>
+                    <strong>₹ {{ total_amount }}</strong>
+                </div>
+                <div>
+                    <span>Accepted Amount</span>
+                    <strong>₹ {{ accepted_amount }}</strong>
+                </div>
+                <div>
+                    <span>Lost Amount</span>
+                    <strong>₹ {{ lost_quoted_amount }}</strong>
+                </div>
+            </div>
+        </div>
+       <div class="overview-search">
+    <div class="search-wrapper">
+        <input
+            type="text"
+            id="globalSearch"
+            placeholder="Search name / phone / email / location">
+        <span class="clear-search" id="clearSearch">×</span>
+    </div>
+</div>
+
+        <div class="overview-right">
+            <button class="new-btn" onclick="openLeadForm()">+ NEW LEADS</button>
+            <button class="filter-btn">
+                <img src="{% static 'images/bx_filter.png' %}" class="filterimg"> <span>Filters</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- KANBAN -->
+    <div class="kanban">
+
+        <!-- NEW -->
+        <div class="column" data-status="NEW">
+            <div class="column-head new ">
+
+                <span class="label">● NEW </span>
+                <span class="count">{{ new_leads|length }}</span>
+            </div>
+            {% for lead in new_leads %}
+            <div class="card" draggable="true" data-id="{{ lead.id }}">
+
+                <!-- <div class="card-title">{{ lead.client_name }}</div> -->
+                <div class="card-title">
+                    {{ lead.client_name }}
+                    <button class="edit-btn" onclick="openEditLead({{ lead.id }})" title="Edit Lead">
+                        <i class="fa-solid fa-pen-to-square"></i>
+
+                    </button>
+                </div>
+                <hr>
+
+                <div class="card-row">
+                    <img src="{% static 'images/event.svg' %}">
+                    <span>{{ lead.event_type }}</span>
+                </div>
+
+                <div class="card-row">
+                    <img src="{% static 'images/calender.svg' %}">
+                    <span>
+                        {{ lead.event_start_date }} {{ lead.event_start_session }}
+                        –
+                        {{ lead.event_end_date }} {{ lead.event_end_session }}
+                    </span>
+                </div>
+                {% if lead.follow_up_date %}
+                <div class="card-row ">
+                    <img src="{% static 'images/follow.svg' %}">
+                    <span>{{ lead.follow_up_date }}</span>
+                    <small>Due</small>
+                </div>
+                {% endif %}
+
+                {% if lead.total_amount %}
+                <div class="card-row">
+                    <img src="{% static 'images/rupee1.svg' %}">
+                    <span> Quoted : ₹ {{ lead.total_amount }}</span>
+                </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- FOLLOW UP -->
+        <div class="column" data-status="FOLLOW_UP">
+            <div class="column-head follow">
+                <span class="label">● FOLLOW UP</span>
+                <span class="count">{{ follow_up|length }}</span>
+            </div>
+            {% for lead in follow_up %}
+            <div class="card" draggable="true" data-id="{{ lead.id }}">
+
+                <!-- <div class="card-title">{{ lead.client_name }}</div> -->
+                <div class="card-title">
+                    {{ lead.client_name }}
+                    <button class="edit-btn" onclick="openEditLead({{ lead.id }})" title="Edit Lead">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
+                <hr>
+
+                <div class="card-row">
+                    <img src="{% static 'images/event.svg' %}">
+                    <span>{{ lead.event_type }}</span>
+                </div>
+
+                <div class="card-row">
+                    <img src="{% static 'images/calender.svg' %}">
+                    <span>
+                        {{ lead.event_start_date }} {{ lead.event_start_session }}
+                        –
+                        {{ lead.event_end_date }} {{ lead.event_end_session }}
+                    </span>
+                </div>
+
+                {% if lead.follow_up_date %}
+                <div class="card-row danger">
+                    <img src="{% static 'images/follow.svg' %}">
+                    <span>{{ lead.follow_up_date }}</span>
+                    <small>Due</small>
+                </div>
+                {% endif %}
+
+                {% if lead.total_amount %}
+                <div class="card-row">
+                     <img src="{% static 'images/rupee1.svg' %}">
+                    <span> Quoted : ₹ {{ lead.total_amount }}</span>
+                </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ACCEPTED -->
+        <div class="column" data-status="ACCEPTED">
+            <div class="column-head accepted">
+                <span class="label">● ACCEPTED</span>
+                <span class="count">{{ accepted|length }}</span>
+            </div>
+            {% for lead in accepted %}
+            <div class="card" draggable="true" data-id="{{ lead.id }}">
+
+                <!-- <div class="card-title">{{ lead.client_name }}</div> -->
+                <div class="card-title">
+                    {{ lead.client_name }}
+                    <button class="edit-btn" onclick="openEditLead({{ lead.id }})" title="Edit Lead">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
+                <hr>
+
+                <div class="card-row">
+                    <img src="{% static 'images/event.svg' %}">
+                    <span>{{ lead.event_type }}</span>
+                </div>
+
+                <div class="card-row">
+                    <img src="{% static 'images/calender.svg' %}">
+                    <span>
+                        {{ lead.event_start_date }} {{ lead.event_start_session }}
+                        –
+                        {{ lead.event_end_date }} {{ lead.event_end_session }}
+                    </span>
+
+                </div>
+                 {% if lead.total_amount %}
+                <div class="card-row">
+                     <img src="{% static 'images/rupee1.svg' %}">
+                    <span> Quoted : ₹ {{ lead.total_amount }}</span>
+                </div>
+                {% endif %}
+
+                {% if lead.paid_amount %}
+                <div class="card-row">
+                    <img src="{% static 'images/rupee1.svg' %}">
+                    <span>Paid : ₹ {{ lead.paid_amount }}</span>
+                </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- LOST -->
+        <div class="column" data-status="LOST">
+            <div class="column-head lost">
+                <span class="label">● LOST</span>
+                <span class="count">{{ lost|length }}</span>
+            </div>
+            {% for lead in lost %}
+            <div class="card" draggable="true" data-id="{{ lead.id }}">
+
+                <!-- <div class="card-title">{{ lead.client_name }}</div> -->
+                <div class="card-title">
+                    {{ lead.client_name }}
+
+                </div>
+                <hr>
+
+                <div class="card-row">
+                    <img src="{% static 'images/event.svg' %}">
+                    <span>{{ lead.event_type }}</span>
+                </div>
+
+                <div class="card-row">
+                    <img src="{% static 'images/calender.svg' %}">
+                    <span>
+                        {{ lead.event_start_date }} {{ lead.event_start_session }}
+                        –
+                        {{ lead.event_end_date }} {{ lead.event_end_session }}
+                    </span>
+
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<!-- NEW LEAD MODAL -->
+<div class="lead-modal" id="leadModal">
+    <div class="lead-form">
+        <button class="close-btn" onclick="closeLeadForm()">×</button>
+        <div class="form-toast" id="formToast"></div>
+
+
+        <!-- PROGRESS HEADER -->
+        <div class="progress-wrapper">
+            <div class="progress-line"></div>
+            <div class="progress-step active">
+                <span>1</span>
+                <p>Client</p>
+            </div>
+            <div class="progress-step">
+                <span>2</span>
+                <p>Event</p>
+            </div>
+        </div>
+
+        <!-- FORM -->
+        <form id="leadForm">
+            {% csrf_token %}
+            <input type="hidden" name="lead_id" id="lead_id">
+
+            <!-- STEP 1 -->
+            <div class="form-step active">
+                <h3>Client Details</h3>
+                <input type="text" name="client_name" placeholder="Client Name" required>
+                <input type="text" name="phone" placeholder="Phone Number" required>
+                <input type="email" name="email" placeholder="Email (optional)">
+                <button type="button" onclick="nextStep()">Next</button>
+            </div>
+
+            <!-- STEP 2 -->
+            <!-- STEP 2 -->
+            <div class="form-step">
+                <h3>Event Details</h3>
+
+                <input type="text" name="event_type" placeholder="Event Type (Wedding, Reception, Baby Shower)"
+                    required>
+
+                <!-- EVENT START -->
+                <div class="field-group">
+                    <label>Event Start</label>
+                    <div class="row">
+                        <input type="date" name="event_start_date" required>
+                        <select name="event_start_session" required>
+                            <option value="">Session</option>
+                            <option value="Morning">Morning</option>
+                            <option value="Evening">Evening</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- EVENT END -->
+                <div class="field-group">
+                    <label>Event End</label>
+                    <div class="row">
+                        <input type="date" name="event_end_date" required>
+                        <select name="event_end_session" required>
+                            <option value="">Session</option>
+                            <option value="Morning">Morning</option>
+                            <option value="Evening">Evening</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- QUOTED AMOUNT -->
+                <div class="field-group">
+                    <label>Total / Quoted Amount</label>
+                    <input type="number" name="total_amount" placeholder="Quoted amount (₹)" min="0" required>
+                </div>
+
+                <!-- FOLLOW UP -->
+                <div class="field-group">
+                    <label>Follow-up Date (optional)</label>
+                    <input type="date" name="follow_up_date">
+                </div>
+
+                <input type="text" name="event_location" placeholder="Event Location" required>
+
+                <div class="form-actions">
+                    <button type="button" onclick="prevStep()">Back</button>
+                    <button type="submit">Create Lead</button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+
+<div class="modal" id="paymentModal">
+    <div class="modal-content payment-box">
+
+        <!-- HEADER -->
+        <div class="payment-header">
+            <h3>Advance Payment</h3>
+            <button class="close-btn" onclick="closePaymentModal()">×</button>
+           
+        </div>
+         <div class="form-toast" id="paymentToast"></div>
+
+        <p class="payment-info">
+            Enter the <strong>quoted amount</strong> and any <strong>advance paid</strong> by the client.
+        </p>
+
+        <!-- TOTAL AMOUNT -->
+        <div class="field-group">
+            <label>Total / Quoted Amount (₹)</label>
+            <input type="number" id="totalAmount" placeholder="Eg: 50000">
+        </div>
+
+        <!-- ADVANCE -->
+        <div class="field-group">
+            <label>Advance Paid (₹) <span>(optional)</span></label>
+            <input type="number" id="paidAmount" placeholder="Eg: 10000">
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Ignore</button>
+            <button class="btn-primary" onclick="submitPayment()">Save & Accept</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'js/dragdrop.js' %}"></script>
+{% endblock %}

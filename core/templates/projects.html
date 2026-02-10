@@ -1,0 +1,706 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Projects{% endblock %}
+
+
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/projects.css' %}">
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+<!-- ================= FILTER PANEL ================= -->
+<div class="filter-overlay" id="filterOverlay">
+  <div class="filter-panel">
+
+    <!-- HEADER -->
+    <div class="filter-header">
+      <h3>Filters</h3>
+      <button class="filter-close" onclick="closeFilter()">×</button>
+    </div>
+
+    <!-- MONTH + YEAR -->
+    <div class="filter-section">
+      <label>Month & Year</label>
+
+      <div class="month-year-picker">
+        <button class="nav-btn" onclick="prevMonth()">‹</button>
+
+        <div class="month-display" id="monthLabel">January</div>
+
+        <div class="year-picker">
+          <button class="nav-btn small" onclick="prevYear()">‹</button>
+          <span id="yearLabel">2026</span>
+          <button class="nav-btn small" onclick="nextYear()">›</button>
+        </div>
+
+        <button class="nav-btn" onclick="nextMonth()">›</button>
+      </div>
+    </div>
+
+    <!-- CUSTOM DATE RANGE -->
+    <div class="filter-section">
+      <label>Custom Date Range</label>
+      <div class="date-range">
+        <input type="date" id="fromDate">
+        <span>to</span>
+        <input type="date" id="toDate">
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="filter-section">
+      <label>Project Status</label>
+      <div class="filter-chips">
+        <label><input type="checkbox" value="PRE"> Pre</label>
+        <label><input type="checkbox" value="SELECTION"> Selection</label>
+        <label><input type="checkbox" value="POST"> Post</label>
+        <label><input type="checkbox" value="COMPLETED"> Completed</label>
+      </div>
+    </div>
+
+    <!-- COMPLETION -->
+    <div class="filter-section">
+      <label>Completion</label>
+      <div class="filter-chips">
+        <label><input type="radio" name="completion" value="ALL" checked> All</label>
+        <label><input type="radio" name="completion" value="COMPLETED"> Completed</label>
+        <label><input type="radio" name="completion" value="PENDING"> Pending</label>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="filter-actions">
+      <button class="reset-btn" onclick="resetFilter()">Reset</button>
+      <button class="apply-btn" onclick="applyFilter()">Apply</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="projects-wrapper">
+  <div class="project-header">
+
+    <!-- TITLE -->
+    <h2 class="page-title">Projects</h2>
+
+    <!-- TOOLBAR -->
+    <div class="project-toolbar">
+      <div>
+        <img src="{% static 'images/boardview.svg' %}" class="active"> <span class="active"> Board View</span>
+      </div>
+      <div> <img src="{% static 'images/listview.svg' %}"> <span> List View</span></div>
+      <div><img src="{% static 'images/overview.svg' %}"> <span> Projects Overview</span></div>
+      <div> <img src="{% static 'images/filter.svg' %}"> <span> Filters</span></div>
+    </div>
+  </div>
+
+  <!-- BOARD -->
+  <div id="boardView">
+    <div class="projects-board">
+
+      <!-- TO BE ASSIGNED -->
+      <div class="project-column" data-status="ASSIGNED">
+        <div class="column-head purple">
+          <span class="label">● To Be Assigned </span> <span class="count">{{ assigned|length }}</span>
+        </div>
+
+        {% for p in assigned %}
+        <div class="project-card" draggable="true" data-id="{{ p.id }}">
+          <div class="code">AK {{ p.id }}</div>
+          <h4>{{ p.client_name }}</h4>
+          <hr class="pre-card-divider" />
+
+          <div class="selection-event">
+            <span>
+              <img src="{% static 'images/event.svg' %}">
+              {{ p.event_type }}
+            </span>
+            <span>
+              <img src="{% static 'images/calender.svg' %}">
+              {{ p.start_date }} – {{ p.end_date }}
+            </span>
+          </div>
+
+          <div class="task-row">
+            <span class="badge new">New</span>
+            <span class="badge gray">00/50 Tasks</span>
+          </div>
+
+          <div class="avatars">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- PRE PRODUCTION -->
+      <!-- PRE PRODUCTION -->
+      <div class="project-column precard" data-status="PRE">
+        <div class="column-head blue">
+          <span class="label">● Pre Production</span> <span class="count">{{ pre_cards|length }}</span>
+        </div>
+
+        {% for p in pre_cards %}
+        <div class="project-card pre-card" data-id="{{ p.id }}">
+
+          <!-- HEADER -->
+          <div class="pre-card-header">
+            <span class="pre-card-code">AK {{ p.id }}</span>
+            <span class="pre-card-status {% if p.is_completed %}completed{% else %}inprogress{% endif %}">
+              {% if p.is_completed %}Completed{% else %}In-Progress{% endif %}
+            </span>
+
+          </div>
+
+          <!-- CLIENT -->
+          <h4 class="pre-card-client">{{ p.client_name }}</h4>
+
+          <hr class="pre-card-divider" />
+
+          <!-- EVENT INFO -->
+          <!-- <div class="pre-card-event">
+            <div><img src="{% static 'images/event.svg' %}"> {{ p.event_type }}</div>
+            <div><img src="{% static 'images/calender.svg' %}"> {{ p.start_date }} – {{ p.end_date }}</div>
+          </div> -->
+          <div class="selection-event">
+            <span>
+              <img src="{% static 'images/event.svg' %}">
+              {{ p.event_type }}
+            </span>
+            <span>
+              <img src="{% static 'images/calender.svg' %}">
+              {{ p.start_date }} – {{ p.end_date }}
+            </span>
+          </div>
+
+
+          <!-- TASKS (2 PER ROW) -->
+          <div class="pre-card-task-grid">
+            {% for t in p.tasks %}
+            <div class="pre-card-task-chip {% if t.done == t.total %}phase-complete{% else %}phase-pending{% endif %}">
+              {{ t.done }} / {{ t.total }} {{ t.phase }}
+            </div>
+
+            {% endfor %}
+          </div>
+
+          <hr class="pre-card-divider" />
+
+          <!-- TEAM -->
+          <div class="pre-card-team">
+            {% for m in p.team %}
+            <span class="pre-card-avatar">{{ m.initials }}</span>
+            {% endfor %}
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+
+
+      <!-- SELECTION -->
+      <!-- SELECTION -->
+      <div class="project-column" data-status="SELECTION">
+        <div class="column-head yellow">
+          <span class="label"> ● Selection </span>
+          <span class="count">{{ selection|length }}</span>
+        </div>
+
+        {% for p in selection %}
+        <div class="project-card selection-card" data-id="{{ p.id }}">
+
+          <!-- CODE -->
+          <div class="selection-code">AK {{ p.id }}</div>
+
+          <!-- CLIENT -->
+          <h4 class="selection-client">{{ p.client_name }}</h4>
+
+          <hr class="selection-divider" />
+
+          <!-- EVENT INFO -->
+          <div class="selection-event">
+            <span>
+              <img src="{% static 'images/event.svg' %}">
+              {{ p.lead.event_type }}
+            </span>
+            <span>
+              <img src="{% static 'images/calender.svg' %}">
+              {{ p.lead.event_start_date }} – {{ p.lead.event_end_date }}
+            </span>
+          </div>
+
+          <!-- LINKS STATUS -->
+          <!-- <div class="selection-links">
+            <div class="selection-chip selection-pending">
+              0 / 1 Gallery Link
+            </div>
+            <div class="selection-chip selection-pending">
+              0 / 1 Selection Link
+            </div>
+          </div> -->
+          <div class="selection-links">
+  {% for t in p.tasks.all %}
+    {% if t.phase == "SELECTION" %}
+      <div class="selection-chip
+           {% if t.status == 'COMPLETED' %}
+             selection-complete
+           {% else %}
+             selection-pending
+           {% endif %}
+      ">
+        {% if t.status == "COMPLETED" %}
+          1 / 1 {{ t.title }}
+        {% else %}
+          0 / 1 {{ t.title }}
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+
+          <!-- TEAM -->
+          <div class="selection-team">
+            {% for m in p.team_assignments.all %}
+            <span class="selection-avatar">
+              {{ m.member.user.first_name|slice:":2"|upper }}
+            </span>
+            {% endfor %}
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+
+      <!-- POST -->
+      <div class="project-column" data-status="POST">
+        <div class="column-head red">
+          <span class="label"> ● Post Production </span> <span class="count">{{ post|length }}</span>
+        </div>
+
+        {% for p in post %}
+        <div class="project-card selection-card" data-id="{{ p.id }}">
+
+          <div class="selection-code">AK {{ p.id }}</div>
+
+          <h4 class="selection-client">{{ p.client_name }}</h4>
+
+          <hr class="selection-divider" />
+
+          <div class="selection-event">
+            <span>
+              <img src="{% static 'images/event.svg' %}">
+              {{ p.event_type }}
+            </span>
+            <span>
+              <img src="{% static 'images/calender.svg' %}">
+              {{ p.start_date }} – {{ p.end_date }}
+            </span>
+          </div>
+
+          <!-- TASK COUNT -->
+          <div class="selection-links">
+            <div class="selection-chip selection-pending">
+              {{ p.completed }} / {{ p.total }} Tasks
+            </div>
+          </div>
+
+          <!-- TEAM -->
+          <div class="selection-team">
+            {% for m in p.team %}
+            <span class="selection-avatar">
+              {{ m.member.user.first_name|slice:":2"|upper }}
+            </span>
+            {% endfor %}
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- COMPLETED -->
+      <div class="project-column" data-status="COMPLETED">
+        <div class="column-head green">
+          <span class="label"> ● Completed </span> <span class="count">{{ completed|length }}</span>
+        </div>
+
+         {% for p in completed %}
+        <div class="project-card selection-card" data-id="{{ p.id }}">
+
+          <!-- CODE -->
+          <div class="selection-code">AK {{ p.id }}</div>
+
+          <!-- CLIENT -->
+          <h4 class="selection-client">{{ p.client_name }}</h4>
+
+          <hr class="selection-divider" />
+
+          <!-- EVENT INFO -->
+          <div class="selection-event">
+            <span>
+              <img src="{% static 'images/event.svg' %}">
+              {{ p.lead.event_type }}
+            </span>
+            <span>
+              <img src="{% static 'images/calender.svg' %}">
+              {{ p.lead.event_start_date }} – {{ p.lead.event_end_date }}
+            </span>
+          </div>
+  <div class="selection-links">
+            <div class="selection-chip selection-pending">
+             {{ p.tasks.count }} / {{ p.tasks.count }} Tasks
+            </div>
+          </div>
+
+         
+
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+  <div id="listView" style="display:none">
+    <div class="projects-list-view">
+
+      <!-- HEADER -->
+      <div class="list-header">
+        <span>Project ID</span>
+        <span>Project Name</span>
+        <span>Event Date</span>
+        <span>Assigned To</span>
+        <span>Tasks</span>
+        <span>Task Status</span>
+      </div>
+
+      <!-- PRE PRODUCTION -->
+      <div class="list-section pre">
+        <div class="list-section-title">● PRE PRODUCTION</div>
+
+        {% for p in pre_cards %}
+        <div class="list-row" data-project-id="{{ p.id }}">
+          <span>AK-{{ p.id }}</span>
+          <span class="list-name">{{ p.client_name }}</span>
+          <span class="list-date">{{ p.start_date }} – {{ p.end_date }}</span>
+
+          <span class="list-avatars">
+            {% for m in p.team %}
+            <span class="avatar">{{ m.initials }}</span>
+            {% endfor %}
+          </span>
+
+          <span class="list-tasks">
+            {% for t in p.tasks %}
+            <span class="task-chip">{{ t.done }}/{{ t.total }} {{ t.phase }}</span>
+            {% endfor %}
+          </span>
+
+          <span class="status-badge inprogress">In-Progress</span>
+        </div>
+        {% empty %}
+        <div class="list-empty">No projects</div>
+        {% endfor %}
+      </div>
+
+      <!-- SELECTION -->
+      <div class="list-section selection">
+        <div class="list-section-title">● SELECTION</div>
+
+        {% for p in selection %}
+        <div class="list-row" data-project-id="{{ p.id }}">
+          <span>AK-{{ p.id }}</span>
+          <span class="list-name">{{ p.client_name }}</span>
+          <span class="list-date">
+            {{ p.lead.event_start_date }} – {{ p.lead.event_end_date }}
+          </span>
+
+          <span class="list-avatars">
+            {% for m in p.team_assignments.all %}
+            <span class="avatar">
+              {{ m.member.user.first_name|slice:":2"|upper }}
+            </span>
+            {% endfor %}
+          </span>
+
+          <span class="list-tasks">
+            <span class="task-chip">0 / 1 Gallery Link</span>
+            <span class="task-chip">0 / 1 Selection Link</span>
+          </span>
+
+          <span class="status-badge inprogress">Selection</span>
+        </div>
+        {% empty %}
+        <div class="list-empty">No projects</div>
+        {% endfor %}
+      </div>
+
+
+      <!-- POST -->
+      <div class="list-section post">
+        <div class="list-section-title">● POST PRODUCTION</div>
+
+        {% for p in post %}
+        <div class="list-row" data-project-id="{{ p.id }}">
+          <span>AK-{{ p.id }}</span>
+          <span class="list-name">{{ p.client_name }}</span>
+          <span class="list-date">
+            {{ p.start_date }} – {{ p.end_date }}
+          </span>
+
+          <div class="list-avatars">
+  {% for m in p.team %}
+    <span class="avatar">  {{ m.member.user.first_name|slice:":2"|upper }}</span>
+  {% endfor %}
+</div>
+
+          <span class="list-tasks">
+          
+            <span class="task-chip">
+              {{ p.completed }} / {{ p.total }} Tasks
+            </span>
+           </span>
+
+
+
+          <span class="status-badge inprogress">PostProduction</span>
+        </div>
+        {% empty %}
+        <div class="list-empty">No projects</div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =============================== -->
+  <!-- PROJECTS OVERVIEW -->
+  <!-- =============================== -->
+  <div id="overviewView" style="display:none">
+
+    <div class="overview-wrapper">
+
+      <!-- TAB SWITCH -->
+       <div class="overview-tab-wrapper"> <div class="overview-tabs">
+        <span class="active" data-tab="internal">Pending Internally</span>
+        <span data-tab="client">Awaiting Client Response</span>
+      </div></div>
+     
+
+      <!-- ================= INTERNAL ================= -->
+      <div class="overview-table active" id="overview-internal">
+
+        <div class="overview-header">
+          <span>Project ID</span>
+          <span>Project Name</span>
+          <span>Event Date</span>
+          <span>Assigned To</span>
+          <span>Pending Tasks</span>
+        </div>
+
+        {% for p in pending_internal %}
+        <div class="overview-row">
+          <span>AK-{{ p.id }}</span>
+
+          <span class="overview-name">
+            <strong>{{ p.lead.client_name }}</strong>
+            <small>{{ p.lead.event_type }}</small>
+          </span>
+
+          <span class="overview-date">{{ p.lead.event_start_date }} – {{ p.lead.event_end_date }}</span>
+
+          <span class="overview-avatars">
+            {% for m in p.team %}
+            <span class="avatar">{{ m.initials }}</span>
+            {% endfor %}
+          </span>
+
+          <span class="overview-chips">
+            {% for t in p.pending_tasks %}
+            <span class="chip">{{ t.title }}</span>
+            {% endfor %}
+          </span>
+        </div>
+        {% endfor %}
+
+      </div>
+
+      <!-- ================= CLIENT ================= -->
+      <div class="overview-table" id="overview-client">
+
+        <div class="overview-header">
+          <span>Project ID</span>
+          <span>Project Name</span>
+          <span>Event Date</span>
+          <span>Due Date</span>
+          <span>Pending List</span>
+        </div>
+
+        {% for p in awaiting_client %}
+        <div class="overview-row">
+          <span>AK-{{ p.id }}</span>
+
+          <span class="overview-name">
+            <strong>{{ p.lead.client_name }}</strong>
+            <small>{{ p.lead.event_type }}</small>
+          </span>
+
+          <span class="overview-date">{{ p.lead.event_start_date }} – {{ p.lead.event_end_date }}</span>
+
+          <span>{{ p.lead.follow_up_date|default:"—" }}</span>
+
+          <span class="overview-chips">
+            {% for label in p.pending_list %}
+            <span class="chip danger">{{ label }}</span>
+            {% endfor %}
+          </span>
+        </div>
+        {% endfor %}
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- =============================== -->
+<!-- INITIAL ASSIGN INFO POPUP -->
+<!-- =============================== -->
+<div class="assign-popup" id="assignPopup" data-count="{{ assigned|length }}">
+  <div class="popup-box">
+    <button onclick="closePopup()">×</button>
+     <img src="{% static 'images/reminderimage.png' %}">
+    <h2>You Have {{ assigned|length }} Projects To Assign Team</h2>
+    <button class="primary" onclick="closePopup()">Assign Now</button>
+  </div>
+</div>
+<div class="assign-popup-team" id="teamAssignPopup">
+  <div class="popup-team-box figma-popup">
+
+    <button class="close-btn" onclick="closeTeamPopup()">×</button>
+
+    <!-- TABS WRAPPER -->
+    <!-- <div class="tabs-wrapper">
+     
+    </div> -->
+
+    <!-- MAIN BODY -->
+    <div class="popup-body">
+
+      <!-- PROJECT DETAILS -->
+      <h3 class="figma-title">Projects Details</h3>
+      <div class="section-grey">
+        <div class="detail-row">📌 <span id="popupClient"></span></div>
+        <div class="detail-row">📍 <span id="popupLocation"></span></div>
+        <div class="detail-row">
+          ⏰ <span id="popupTime"></span>
+          <span class="sep">•</span>
+          ⏳ <span id="popupDuration"></span>
+        </div>
+        <div class="detail-row">📅 <span id="popupDates"></span></div>
+      </div>
+
+      <!-- TEAM MEMBERS -->
+      <h3 class="figma-title">Team Members</h3>
+      <div class="section-grey">
+
+        <div class="figma-tabs">
+          <span class="active" data-tab="available">Available Members</span>
+          <span data-tab="booked">Booked Members</span>
+        </div>
+
+        <!-- INNER BOX -->
+        <div class="team-inner-box">
+
+          <!-- AVAILABLE MEMBERS -->
+          <div class="team-available">
+
+            <div class="team-section">
+              <h4>General</h4>
+              <div class="pill-row" data-group="general">
+                {% for m in general_team %}
+                <span class="member-pill selectable" data-id="{{ m.id }}" data-role="general"
+                  data-name="{{ m.user.get_full_name|default:m.user.username }}">
+                  {{ m.user.username|slice:":2"|upper }}
+                </span>
+                {% empty %}
+                <span class="no-member">No members</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="team-section">
+              <h4>Pre Production</h4>
+              <div class="pill-row" data-group="pre">
+                {% for m in pre_team %}
+                <span class="member-pill selectable" data-id="{{ m.id }}" data-role="{{ m.role }}"
+                  data-name="{{ m.user.get_full_name|default:m.user.username }}">
+                  {{ m.user.username|slice:":2"|upper }}
+                </span>
+                {% empty %}
+                <span class="no-member">No members</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="team-section">
+              <h4>Post Production</h4>
+              <div class="pill-row scroll-pills" data-group="post">
+                {% for m in post_team %}
+                <span class="member-pill selectable" data-id="{{ m.id }}" data-role="post"
+                  data-name="{{ m.user.get_full_name|default:m.user.username }}">
+                  {{ m.user.username|slice:":2"|upper }}
+                </span>
+                {% empty %}
+                <span class="no-member">No members</span>
+                {% endfor %}
+              </div>
+            </div>
+
+          </div>
+
+          <!-- BOOKED MEMBERS (JS WILL FILL) -->
+          <div class="team-booked" style="display:none">
+            <div class="pill-row booked-row"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="popup-footer">
+        <input type="date" class="figma-date">
+        <button class="figma-send" onclick="validateAndProceed()">
+          ➜ Send Notifications
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TASK ASSIGN POPUP -->
+<div class="task-overlay" id="taskPopup">
+  <div class="task-modal">
+
+    <button class="task-close-btn" onclick="closeTaskPopup()">×</button>
+
+    <h3 class="task-modal-title">Tasks</h3>
+
+    <!-- TASK TABLE -->
+    <div id="taskContainer"></div>
+
+    <div class="task-footer">
+      <button class="task-save-btn" onclick="finishAssignment()">
+        Save & Assign
+      </button>
+    </div>
+
+  </div>
+</div>
+<div id="saveToast" class="save-toast">✔ Saved</div>
+
+<script src="{% static 'js/projects.js' %}"></script>
+{% endblock %}

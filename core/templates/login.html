@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | Akash Photography</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+
+<div class="login-container">
+
+    <!-- LEFT IMAGE -->
+    <div class="left">
+        <img src="{% static 'images/adminlogin.png' %}" alt="Photography">
+    </div>
+
+    <!-- RIGHT LOGIN FORM -->
+    <div class="right">
+        <img class="logo" src="{% static 'images/logo.png' %}" alt="Akash Photography">
+
+        <h2>Hello,</h2>
+        <h3>Welcome Back</h3>
+<div id="loginError" class="login-error" style="display:none;">
+  Please fill all fields correctly.
+</div>
+
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- ROLE -->
+            <div class="roles">
+             <label class="radio">
+    <input type="radio" name="role" value="admin" >
+    <span></span>
+    <span class="radio-text">Admin Login</span>
+</label>
+
+<label class="radio">
+    <input type="radio" name="role" value="team" >
+    <span></span>
+    <span class="radio-text">Team Login</span>
+</label>
+            </div>
+
+            <!-- USERNAME -->
+            <div class="input-group">
+                <img src="{% static 'images/user-icon.png' %}">
+                <input type="text" name="username" required>
+                <label>Username / Email ID</label>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="input-group">
+                <img src="{% static 'images/lock-icon.png' %}">
+                <input type="password" name="password" required>
+                <label>Password</label>
+            </div>
+
+            <button type="submit">LOGIN</button>
+        </form>
+    </div>
+
+</div>
+<script>
+  const form = document.querySelector("form");
+  const errorBox = document.getElementById("loginError");
+
+  const roleInputs = document.querySelectorAll('input[name="role"]');
+  const usernameInput = document.querySelector('input[name="username"]');
+  const passwordInput = document.querySelector('input[name="password"]');
+
+  function showError(msg) {
+    errorBox.innerText = msg;
+    errorBox.style.display = "block";
+  }
+
+  function hideError() {
+    errorBox.style.display = "none";
+  }
+
+  // ❌ STOP auto-hiding on random clicks
+  // ✅ Only hide when user FIXES input
+
+  roleInputs.forEach(radio => {
+    radio.addEventListener("change", hideError);
+  });
+
+  usernameInput.addEventListener("input", hideError);
+  passwordInput.addEventListener("input", hideError);
+
+  form.addEventListener("submit", function (e) {
+    const roleChecked = document.querySelector('input[name="role"]:checked');
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!roleChecked) {
+      e.preventDefault();
+      showError("Please select a login role.");
+      return;
+    }
+
+    if (!username) {
+      e.preventDefault();
+      showError("Please enter your username.");
+      return;
+    }
+
+    if (!password) {
+      e.preventDefault();
+      showError("Please enter your password.");
+      return;
+    }
+  });
+</script>
+
+
+</body>
+</html>
