@@ -41,7 +41,7 @@
       <label>Custom Date Range</label>
       <div class="date-range">
         <input type="date" id="fromDate">
-        <span>to</span>
+        <span></span>
         <input type="date" id="toDate">
       </div>
     </div>
@@ -69,8 +69,8 @@
 
     <!-- ACTIONS -->
     <div class="filter-actions">
-      <button class="reset-btn" onclick="resetFilter()">Reset</button>
-      <button class="apply-btn" onclick="applyFilter()">Apply</button>
+      <button class="reset-btn" onclick="resetFilter()">Clear All</button>
+      <button class="apply-btn" onclick="applyFilter()">Apply Filters</button>
     </div>
 
   </div>
@@ -399,7 +399,7 @@
           <span class="status-badge inprogress">In-Progress</span>
         </div>
         {% empty %}
-        <div class="list-empty">No projects</div>
+        <div class="list-empty" style="padding:10px">No projects</div>
         {% endfor %}
       </div>
 
@@ -431,7 +431,7 @@
           <span class="status-badge inprogress">Selection</span>
         </div>
         {% empty %}
-        <div class="list-empty">No projects</div>
+        <div class="list-empty" style="padding:10px">No projects</div>
         {% endfor %}
       </div>
 
@@ -466,7 +466,7 @@
           <span class="status-badge inprogress">PostProduction</span>
         </div>
         {% empty %}
-        <div class="list-empty">No projects</div>
+        <div class="list-empty" style="padding:10px">No projects</div>
         {% endfor %}
       </div>
 
@@ -613,7 +613,7 @@
 
         <!-- INNER BOX -->
         <div class="team-inner-box">
-
+ 
           <!-- AVAILABLE MEMBERS -->
           <div class="team-available">
 
@@ -703,4 +703,6 @@
 <div id="saveToast" class="save-toast">✔ Saved</div>
 
 <script src="{% static 'js/projects.js' %}"></script>
+
+<script src="{% static 'js/global.js' %}"></script>
 {% endblock %}

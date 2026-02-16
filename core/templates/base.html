@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Akash Photography{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <!-- font family -->
@@ -65,6 +66,7 @@
         <img src="{% static 'images/logo.png' %}" alt="Akash" class="logo">
     </div>
  <div class="nav-center">
+    <button class="mobile-menu-close" onclick="toggleMobileMenu()">×</button>
     <!-- CENTER : MENU -->
     <ul class="nav-menu">
 
@@ -83,7 +85,7 @@
             <span>Projects</span>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" id="nav-sessions">
             <img src="{% static 'images/session.png' %}">
             <span>Session</span>
         </li>
@@ -103,10 +105,16 @@
 
     <!-- RIGHT : NOTIFICATION + PROFILE -->
     <div class="nav-right">
+        
         <div class="notification" onclick="openFollowup()">
             <img src="{% static 'images/notification.png' %}">
              <span class="notif-badge" id="followupBadge">0</span>
         </div>
+        <div class="mobile-menu-btn" onclick="toggleMobileMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
         <div class="profile-circle">AK</div>
     </div>
 
@@ -119,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const navRoutes = [
         { id: "nav-projects", path: "/projects/" },
         { id: "nav-leads", path: "/leads/" },
+         { id: "nav-sessions", path: "/sessions/" },
        
     ];
 
@@ -148,6 +157,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+function toggleMobileMenu() {
+    document.querySelector(".nav-center").classList.toggle("open");
+}
+document.querySelectorAll(".nav-item").forEach(item => {
+  item.addEventListener("click", () => {
+    document.querySelector(".nav-center").classList.remove("open");
+  });
+});
+
 </script>
 
 

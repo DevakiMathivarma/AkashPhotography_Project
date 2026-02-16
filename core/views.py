@@ -563,8 +563,6 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Project,ProjectTeam
-
-
 @require_POST
 def assign_team_members(request):
     project = get_object_or_404(Project, id=request.POST["project_id"])
@@ -572,14 +570,75 @@ def assign_team_members(request):
 
     ProjectTeam.objects.filter(project=project).delete()
 
+    assigned_members = []
+
     for mid in member_ids:
         if mid:
-            ProjectTeam.objects.create(
+            pt = ProjectTeam.objects.create(
                 project=project,
                 member_id=mid
             )
+            assigned_members.append({
+                "id": pt.member.id,
+                "name": pt.member.user.get_full_name() or pt.member.user.username
+            })
 
-    return JsonResponse({"success": True})
+    return JsonResponse({
+        "success": True,
+        "project_id": project.id,
+        "assigned_team": assigned_members
+    })
+
+
+# @require_POST
+# def assign_team_members(request):
+#     project = get_object_or_404(Project, id=request.POST["project_id"])
+#     member_ids = request.POST.get("members", "").split(",")
+
+#     ProjectTeam.objects.filter(project=project).delete()
+
+#     for mid in member_ids:
+#         if mid:
+#             ProjectTeam.objects.create(
+#                 project=project,
+#                 member_id=mid
+#             )
+
+#     return JsonResponse({"success": True})
+# @require_POST
+# def assign_team_members(request):
+#     project = get_object_or_404(Project, id=request.POST["project_id"])
+#     member_ids = request.POST.get("members", "").split(",")
+
+#     # 1️⃣ Clear old assignments
+#     ProjectTeam.objects.filter(project=project).delete()
+
+#     assigned_members = []
+
+#     # 2️⃣ Assign new members
+#     for mid in member_ids:
+#         if mid:
+#             pt = ProjectTeam.objects.create(
+#                 project=project,
+#                 member_id=mid
+#             )
+#             assigned_members.append({
+#                 "id": pt.member.id,
+#                 "name": pt.member.user.get_full_name() or pt.member.user.username
+#             })
+
+#     # 3️⃣ 🔥 THIS IS THE KEY LINE
+#     project.status = "PRE"   # or "IN_PROGRESS" if you prefer
+#     project.save()
+
+#     # 4️⃣ Send data back to frontend
+#     return JsonResponse({
+#         "success": True,
+#         "project_id": project.id,
+#         "status": project.status,
+#         "assigned_team": assigned_members
+#     })
+
 
 
 
@@ -733,7 +792,7 @@ def project_details_api(request, project_id):
         "end_date": lead.event_end_date.strftime("%d/%m/%Y"),
         "start_session": lead.event_start_session,
         "event_type": lead.event_type,
-        "available_members": available_members,
+        "general_team": available_members,
         "booked_members": booked_members,
     })
 
@@ -783,14 +842,28 @@ def project_tasks_api(request, project_id):
     # ==================================
     # 2️⃣ CREATE DEFAULT TASKS (ONCE)
     # ==================================
-    if event_key and project.tasks.count() == 0:
-        for phase, title in DEFAULT_TASKS.get(event_key, []):
+    # if event_key and project.tasks.count() == 0:
+    #     for phase, title in DEFAULT_TASKS.get(event_key, []):
+    #         ProjectTask.objects.create(
+    #             project=project,
+    #             phase=phase,
+    #             title=title,
+    #             status="PENDING"
+    #         )
+    if event_key:
+        existing = set(
+        project.tasks.values_list("phase", "title")
+    )
+
+    for phase, title in DEFAULT_TASKS.get(event_key, []):
+        if (phase, title) not in existing:
             ProjectTask.objects.create(
                 project=project,
                 phase=phase,
                 title=title,
                 status="PENDING"
             )
+
 
     # ==================================
     # 3️⃣ FETCH TASKS
@@ -871,7 +944,10 @@ def update_project_task(request):
 
     task.save()
     project = task.project
-
+    
+    if task.assigned_to and project.status == "PRE":
+        project.status = "PRE"   # explicit (safe)
+        project.save()
     # 🔥 ONE LINE BUSINESS LOGIC
     auto_move_pre_to_selection(task.project)
     auto_move_selection_to_post(task.project)
@@ -889,3 +965,62 @@ def delete_project_task(request):
     return JsonResponse({"success": True})
 
 
+
+# core/views/sessions.py
+from django.shortcuts import render
+from django.utils.timezone import now
+from collections import defaultdict
+from core.models import Project
+
+def sessions_view(request):
+    today = now().date()
+    current_year = today.year
+    current_month = today.month
+
+    tab = request.GET.get("tab")  # no default → no active tab initially
+
+    projects = Project.objects.select_related("lead").prefetch_related(
+        "tasks",
+        "team_assignments__member__user"
+    )
+
+    # 🔥 STRICT MONTH-BASED FILTERING (FIXED)
+    if tab == "upcoming":
+        # ONLY current month
+        projects = projects.filter(
+            lead__event_start_date__year=current_year,
+            lead__event_start_date__month=current_month
+        )
+
+    elif tab == "past":
+        # ANY month BEFORE current month (same year OR previous years)
+        projects = projects.filter(
+            lead__event_start_date__lt=now().date().replace(
+                year=current_year,
+                month=current_month,
+                day=1
+            )
+        )
+
+    elif tab == "future":
+        # ANY month AFTER current month
+        projects = projects.filter(
+            lead__event_start_date__year__gte=current_year
+        ).exclude(
+            lead__event_start_date__year=current_year,
+            lead__event_start_date__month__lte=current_month
+        )
+
+    # tab == None → NO FILTER → ALL PROJECTS
+
+    # ✅ MONTH GROUPING (SAFE)
+    grouped = defaultdict(list)
+    for p in projects:
+        if p.lead and p.lead.event_start_date:
+            month_key = p.lead.event_start_date.strftime("%B %Y")
+            grouped[month_key].append(p)
+
+    return render(request, "sessions.html", {
+        "grouped_projects": dict(grouped),
+        "active_tab": tab,
+    })

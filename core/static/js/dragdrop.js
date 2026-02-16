@@ -30,21 +30,43 @@ document.querySelectorAll(".column").forEach(column => {
     column.addEventListener("dragleave", () => {
         column.classList.remove("hover");
     });
-    column.addEventListener("drop", () => {
-        column.classList.remove("hover");
+   column.addEventListener("drop", () => {
+    column.classList.remove("hover");
 
-        const status = column.dataset.status;
-        const leadId = draggedCard.dataset.id;
+    const status = column.dataset.status;
+    const leadId = draggedCard.dataset.id;
+    const fromStatus = sourceColumn.dataset.status;
 
-    
+    // 🚫 BLOCK backward movement
+  if (canMoveBackward(fromStatus, status)) {
+    draggedCard.classList.add("shake");
 
-        if (status === "ACCEPTED") {
-            currentLeadId = leadId;
-            openPaymentModal(leadId);
-        } else {
-            updateStatus(leadId, status);
-        }
-    });
+    // 🔥 FIX: put card back immediately
+    sourceColumn.appendChild(draggedCard);
+
+    setTimeout(() => draggedCard.classList.remove("shake"), 400);
+    return;
+}
+
+    // ✅ NEW: always move to TOP when dropped into another column
+if (sourceColumn !== column) {
+    const firstCard = column.querySelector(".card");
+    if (firstCard) {
+        column.insertBefore(draggedCard, firstCard);
+    } else {
+        column.appendChild(draggedCard);
+    }
+}
+
+
+    if (status === "ACCEPTED") {
+        currentLeadId = leadId;
+        openPaymentModal(leadId);
+    } else {
+        updateStatus(leadId, status);
+    }
+});
+
 });
 
 
@@ -673,3 +695,52 @@ if (overviewSection) {
   observer.observe(overviewSection);
 }
 
+
+// flow 
+const STATUS_ORDER = ["NEW", "FOLLOW_UP", "ACCEPTED", "LOST"];
+
+function canMoveBackward(from, to) {
+    return STATUS_ORDER.indexOf(to) < STATUS_ORDER.indexOf(from);
+}
+// ===============================
+// 🔥 ADD: COLUMN AUTO-SCROLL + REORDER
+// ===============================
+// ===============================
+// 🔥 COLUMN AUTO-SCROLL + REORDER (FINAL FIX)
+// ===============================
+document.querySelectorAll(".column").forEach(column => {
+
+    column.addEventListener("dragover", e => {
+        if (!draggedCard) return;
+
+        // ✅ FIX: allow reorder only if card is already in this column
+        if (draggedCard.parentElement !== column) return;
+
+        const rect = column.getBoundingClientRect();
+        const threshold = 60;
+        const scrollSpeed = 10;
+
+        // 🔼 auto scroll up
+        if (e.clientY < rect.top + threshold) {
+            column.scrollTop -= scrollSpeed;
+        }
+
+        // 🔽 auto scroll down
+        if (e.clientY > rect.bottom - threshold) {
+            column.scrollTop += scrollSpeed;
+        }
+
+        // ↕ reorder cards inside column
+        const cards = [...column.querySelectorAll(".card:not(.dragging)")];
+        for (const card of cards) {
+            const middle = card.getBoundingClientRect().top + card.offsetHeight / 2;
+            if (e.clientY < middle) {
+                column.insertBefore(draggedCard, card);
+                return;
+            }
+        }
+
+        column.appendChild(draggedCard);
+    });
+
+});

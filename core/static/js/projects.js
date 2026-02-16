@@ -158,6 +158,8 @@ function openTeamPopup() {
         `${data.start_date} — ${data.end_date}`;
 
       popup.style.display = "flex";
+      console.log(data);
+      console.log("project");
 
       // existing logic
       renderTeamMembers(data);

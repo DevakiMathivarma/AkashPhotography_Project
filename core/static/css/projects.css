@@ -1,5 +1,6 @@
 .projects-wrapper {
     padding: 30px;
+    max-width: 1500px;
 }
 /* =========================
    PROJECT HEADER
@@ -2321,7 +2322,7 @@ width:80%;
 
 /* ---------- OVERLAY FADE ---------- */
 .filter-overlay {
-  backdrop-filter: blur(2px);
+  /* backdrop-filter: blur(2px); */
   animation: overlayFade 0.35s ease forwards;
 }
 

@@ -127,14 +127,14 @@ body {
     margin-bottom: 22px;
 }
 
-.input-group img {
+/* .input-group img {
     position: absolute;
     top: 50%;
     left: 14px;
     width: 18px;
     transform: translateY(-50%);
     opacity: 0.6;
-}
+} */
 
 .input-group input {
     width: 500px;
@@ -212,6 +212,81 @@ button:hover {
   border-radius: 6px;
   margin-bottom: 15px;
   font-size: 14px;
+}
+
+/* FIELD ERROR */
+.field-error {
+  color: #b30000;
+  font-size: 13px;
+  margin: -12px 0 12px 0;
+  display: none;
+}
+
+
+
+.toggle-eye:hover {
+  opacity: 1;
+}
+/* .input-group img:not(.toggle-eye) {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 18px;
+  transform: translateY(-50%);
+  opacity: 0.6;
+} */
+
+/* LEFT ICONS (user & password) */
+.input-group img.icon-left {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  transform: translateY(-50%);
+  opacity: 0.6;
+}
+
+/* PASSWORD GROUP */
+.password-group {
+  position: relative;
+}
+
+/* EYE ICON – RIGHT SIDE */
+.password-group .toggle-eye {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 20px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  opacity: 0.6;
+}
+
+.toggle-eye:hover {
+  opacity: 1;
+}
+
+/* SPACE FOR EYE */
+.input-group input {
+  padding-right: 45px;
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-group .toggle-eye {
+  position: absolute;
+  right: 14px;        /* ✅ EXACT place you circled */
+  top: 50%;
+  width: 20px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  opacity: 0.6;
+}
+
+.toggle-eye:hover {
+  opacity: 1;
 }
 
 

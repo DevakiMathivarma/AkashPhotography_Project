@@ -21,7 +21,9 @@ from .views import (
     # team member
      team_members_view, create_team_member,project_details_api,
     #  task assigning
-    project_tasks_api,add_project_task,update_project_task,delete_project_task
+    project_tasks_api,add_project_task,update_project_task,delete_project_task,
+    # sessionpage
+    sessions_view
 )
 
 urlpatterns = [
@@ -66,5 +68,9 @@ urlpatterns = [
     path("projects/tasks/add/", add_project_task),
     path("projects/tasks/update/", update_project_task),
     path("projects/tasks/delete/", delete_project_task),
+
+    # sessions page
+    path("sessions/", sessions_view, name="sessions"),
+
 
 ]

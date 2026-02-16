@@ -1,121 +1,159 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Login | Akash Photography</title>
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+  <title>Login | Akash Photography</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
+
 <body>
 
-<div class="login-container">
+  <div class="login-container">
 
     <!-- LEFT IMAGE -->
     <div class="left">
-        <img src="{% static 'images/adminlogin.png' %}" alt="Photography">
+      <img src="{% static 'images/adminlogin.png' %}" alt="Photography">
     </div>
 
     <!-- RIGHT LOGIN FORM -->
     <div class="right">
-        <img class="logo" src="{% static 'images/logo.png' %}" alt="Akash Photography">
+      <img class="logo" src="{% static 'images/logo.png' %}" alt="Akash Photography">
 
-        <h2>Hello,</h2>
-        <h3>Welcome Back</h3>
-{% if messages %}
+      <h2>Hello,</h2>
+      <h3>Welcome Back</h3>
+
+      <!-- 🔴 GLOBAL ERRORS (ROLE / AUTHORIZATION ONLY) -->
+      {% if messages %}
+      {% for message in messages %}
+      {% if "Invalid username or password" not in message|stringformat:"s" %}
+      <div id="loginError" class="login-error {{ message.tags }}">
+        {{ message }}
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% else %}
+      <div id="loginError" class="login-error" style="display:none;"></div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- ROLE -->
+        <div class="roles">
+          <label class="radio">
+            <input type="radio" name="role" value="admin">
+            <span></span>
+            <span class="radio-text">Admin Login</span>
+          </label>
+
+          <label class="radio">
+            <input type="radio" name="role" value="team">
+            <span></span>
+            <span class="radio-text">Team Login</span>
+          </label>
+        </div>
+
+        <!-- USERNAME -->
+        <div class="input-group">
+          <img src="{% static 'images/user.svg' %}" class="icon-left">
+          <input type="text" name="username" required>
+          <label>Username / Email ID</label>
+        </div>
+        <div class="field-error" id="usernameError"></div>
+
+        <!-- PASSWORD -->
+        <div class="input-group password-group">
+          <img src="{% static 'images/password.svg' %}" class="icon-left">
+          <input type="password" name="password" id="passwordInput" required>
+          <label>Password</label>
+          <img src="{% static 'images/eye.png' %}" class="toggle-eye" id="togglePassword" alt="Show password">
+        </div>
+        <div class="field-error" id="passwordError"></div>
+
+        <button type="submit">LOGIN</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- ================= JS ================= -->
+  <script>
+    const form = document.querySelector("form");
+
+    const usernameInput = document.querySelector('input[name="username"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
+
+    /* ---------- HELPERS ---------- */
+    function showError(el, msg) {
+      el.innerText = msg;
+      el.style.display = "block";
+    }
+
+    function hideError(el) {
+      el.style.display = "none";
+    }
+
+    /* ---------- LIVE CLEAR ---------- */
+    usernameInput.addEventListener("input", () => hideError(usernameError));
+    passwordInput.addEventListener("input", () => hideError(passwordError));
+
+    /* ---------- SUBMIT VALIDATION ---------- */
+    form.addEventListener("submit", function (e) {
+      let hasError = false;
+
+      if (!usernameInput.value.trim()) {
+        showError(usernameError, "Username is required.");
+        hasError = true;
+      }
+
+      if (!passwordInput.value.trim()) {
+        showError(passwordError, "Password is required.");
+        hasError = true;
+      }
+
+      if (hasError) e.preventDefault();
+    });
+
+    /* ---------- PASSWORD TOGGLE ---------- */
+    // const toggle = document.getElementById("togglePassword");
+    // toggle.addEventListener("click", () => {
+    //   passwordInput.type =
+    //     passwordInput.type === "password" ? "text" : "password";
+    // });
+const toggle = document.getElementById("togglePassword");
+
+toggle.addEventListener("click", () => {
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    toggle.src = "{% static 'images/eyeclose.png' %}";
+  } else {
+    passwordInput.type = "password";
+    toggle.src = "{% static 'images/eye.png' %}";
+  }
+});
+
+
+  </script>
+
+  <!-- ================= DJANGO → FIELD ERROR ================= -->
+  {% if messages %}
   {% for message in messages %}
-    <div id="loginError" class="login-error {{ message.tags }}">
-      {{ message }}
-    </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+     {% if "Invalid username or password" in message %}
+      document.getElementById("passwordError").innerText =
+        "Username or password is incorrect.";
+      document.getElementById("passwordError").style.display = "block";
+      {% endif %}
+    });
+  </script>
   {% endfor %}
-{% else %}
-  <div id="loginError" class="login-error" style="display:none;"></div>
-{% endif %}
-
-
-        <form method="post" novalidate>
-            {% csrf_token %}
-
-            <!-- ROLE -->
-            <div class="roles">
-             <label class="radio">
-    <input type="radio" name="role" value="admin" >
-    <span></span>
-    <span class="radio-text">Admin Login</span>
-</label>
-
-<label class="radio">
-    <input type="radio" name="role" value="team" >
-    <span></span>
-    <span class="radio-text">Team Login</span>
-</label>
-            </div>
-
-            <!-- USERNAME -->
-            <div class="input-group">
-                <img src="{% static 'images/user.svg' %}">
-                <input type="text" name="username" required>
-                <label>Username / Email ID</label>
-            </div>
-
-            <!-- PASSWORD -->
-            <div class="input-group">
-                <img src="{% static 'images/password.svg' %}">
-                <input type="password" name="password" required>
-                <label>Password</label>
-            </div>
-
-            <button type="submit">LOGIN</button>
-        </form>
-    </div>
-
-</div>
-<script>
-  const form = document.querySelector("form");
-  const errorBox = document.getElementById("loginError");
-
-  const roleInputs = document.querySelectorAll('input[name="role"]');
-  const usernameInput = document.querySelector('input[name="username"]');
-  const passwordInput = document.querySelector('input[name="password"]');
-
-  function showError(msg) {
-    errorBox.innerText = msg;
-    errorBox.style.display = "block";
-  }
-
-  function hideError() {
-    errorBox.style.display = "none";
-  }
-
-  // Hide only when user fixes input
-  roleInputs.forEach(radio => radio.addEventListener("change", hideError));
-  usernameInput.addEventListener("input", hideError);
-  passwordInput.addEventListener("input", hideError);
-
-  form.addEventListener("submit", function (e) {
-    const roleChecked = document.querySelector('input[name="role"]:checked');
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!roleChecked) {
-      e.preventDefault();
-      showError("Please select a login role.");
-      return;
-    }
-
-    if (!username) {
-      e.preventDefault();
-      showError("Username is required.");
-      return;
-    }
-
-    if (!password) {
-      e.preventDefault();
-      showError("Password is required.");
-      return;
-    }
-  });
-</script>
-
-
+  {% endif %}
 
 </body>
+
 </html>

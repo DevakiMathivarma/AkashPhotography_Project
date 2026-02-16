@@ -1,0 +1,105 @@
+<div class="team-assign-inline">
+<div class="assign-popup-team" id="teamAssignPopup">
+  <div class="popup-team-box figma-popup">
+
+    <button class="close-btn" onclick="closeTeamPopup()">×</button>
+
+    <!-- TABS WRAPPER -->
+    <!-- <div class="tabs-wrapper">
+     
+    </div> -->
+
+    <!-- MAIN BODY -->
+    <div class="popup-body">
+
+      <!-- PROJECT DETAILS -->
+      <h3 class="figma-title">Projects Details</h3>
+      <div class="section-grey">
+        <div class="detail-row">📌 <span id="popupClient"></span></div>
+        <div class="detail-row">📍 <span id="popupLocation"></span></div>
+        <div class="detail-row">
+          ⏰ <span id="popupTime"></span>
+          <span class="sep">•</span>
+          ⏳ <span id="popupDuration"></span>
+        </div>
+        <div class="detail-row">📅 <span id="popupDates"></span></div>
+      </div>
+
+      <!-- TEAM MEMBERS -->
+      <h3 class="figma-title">Team Members</h3>
+      <div class="section-grey">
+
+        <div class="figma-tabs">
+          <span class="active" data-tab="available">Available Membersd</span>
+          <span data-tab="booked">Booked Members</span>
+        </div>
+
+        <!-- INNER BOX -->
+        <div class="team-inner-box">
+
+          <!-- AVAILABLE MEMBERS -->
+          <div class="team-available">
+
+            <div class="team-section">
+              <h4>General</h4>
+              <div class="pill-row" data-group="general">
+                {% for m in general_team %}
+                <span class="member-pill selectable" data-id="{{ m.id }}" data-role="general"
+                  data-name="{{ m.user.get_full_name|default:m.user.username }}">
+                  {{ m.user.username|slice:":2"|upper }}
+                </span>
+                {% empty %}
+                <span class="no-member">No members</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="team-section">
+              <h4>Pre Production</h4>
+              <div class="pill-row" data-group="pre">
+                {% for m in pre_team %}
+                <span class="member-pill selectable" data-id="{{ m.id }}" data-role="{{ m.role }}"
+                  data-name="{{ m.user.get_full_name|default:m.user.username }}">
+                  {{ m.user.username|slice:":2"|upper }}
+                </span>
+                {% empty %}
+                <span class="no-member">No members</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="team-section">
+              <h4>Post Production</h4>
+              <div class="pill-row scroll-pills" data-group="post">
+                {% for m in post_team %}
+                <span class="member-pill selectable" data-id="{{ m.id }}" data-role="post"
+                  data-name="{{ m.user.get_full_name|default:m.user.username }}">
+                  {{ m.user.username|slice:":2"|upper }}
+                </span>
+                {% empty %}
+                <span class="no-member">No members</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- BOOKED MEMBERS (JS WILL FILL) -->
+          <div class="team-booked" style="display:none">
+            <div class="pill-row booked-row"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="popup-footer">
+        <input type="date" class="figma-date">
+        <button class="figma-send" onclick="validateAndProceed()">
+          ➜ Send Notifications
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>

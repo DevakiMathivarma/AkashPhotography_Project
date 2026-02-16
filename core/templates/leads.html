@@ -131,15 +131,13 @@
                 </div>
             </div>
         </div>
-       <div class="overview-search">
-    <div class="search-wrapper">
-        <input
-            type="text"
-            id="globalSearch"
-            placeholder="Search name / phone / email / location">
-        <span class="clear-search" id="clearSearch">×</span>
-    </div>
-</div>
+        <div class="overview-search">
+            <div class="search-wrapper">
+                <i class="fa fa-search search-icon"></i>
+                <input type="text" id="globalSearch" placeholder="Search name / phone / email / location">
+                <span class="clear-search" id="clearSearch">×</span>
+            </div>
+        </div>
 
         <div class="overview-right">
             <button class="new-btn" onclick="openLeadForm()">+ NEW LEADS</button>
@@ -246,7 +244,7 @@
 
                 {% if lead.total_amount %}
                 <div class="card-row">
-                     <img src="{% static 'images/rupee1.svg' %}">
+                    <img src="{% static 'images/rupee1.svg' %}">
                     <span> Quoted : ₹ {{ lead.total_amount }}</span>
                 </div>
                 {% endif %}
@@ -287,9 +285,9 @@
                     </span>
 
                 </div>
-                 {% if lead.total_amount %}
+                {% if lead.total_amount %}
                 <div class="card-row">
-                     <img src="{% static 'images/rupee1.svg' %}">
+                    <img src="{% static 'images/rupee1.svg' %}">
                     <span> Quoted : ₹ {{ lead.total_amount }}</span>
                 </div>
                 {% endif %}
@@ -373,60 +371,62 @@
                 <h3>Client Details</h3>
                 <input type="text" name="client_name" placeholder="Client Name" required>
                 <input type="text" name="phone" placeholder="Phone Number" required>
-                <input type="email" name="email" placeholder="Email (optional)">
+                <input type="email" name="email" placeholder="Email">
                 <button type="button" onclick="nextStep()">Next</button>
             </div>
 
             <!-- STEP 2 -->
             <!-- STEP 2 -->
-            <div class="form-step">
-                <h3>Event Details</h3>
+            <div class="form-scroll">
+                <div class="form-step">
+                    <h3>Event Details</h3>
 
-                <input type="text" name="event_type" placeholder="Event Type (Wedding, Reception, Baby Shower)"
-                    required>
+                    <input type="text" name="event_type" placeholder="Event Type (Wedding, Reception, Baby Shower)"
+                        required>
 
-                <!-- EVENT START -->
-                <div class="field-group">
-                    <label>Event Start</label>
-                    <div class="row">
-                        <input type="date" name="event_start_date" required>
-                        <select name="event_start_session" required>
-                            <option value="">Session</option>
-                            <option value="Morning">Morning</option>
-                            <option value="Evening">Evening</option>
-                        </select>
+                    <!-- EVENT START -->
+                    <div class="field-group">
+                        <label>Event Start</label>
+                        <div class="row">
+                            <input type="date" name="event_start_date" required>
+                            <select name="event_start_session" required>
+                                <option value="">Session</option>
+                                <option value="Morning">Morning</option>
+                                <option value="Evening">Evening</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <!-- EVENT END -->
-                <div class="field-group">
-                    <label>Event End</label>
-                    <div class="row">
-                        <input type="date" name="event_end_date" required>
-                        <select name="event_end_session" required>
-                            <option value="">Session</option>
-                            <option value="Morning">Morning</option>
-                            <option value="Evening">Evening</option>
-                        </select>
+                    <!-- EVENT END -->
+                    <div class="field-group">
+                        <label>Event End</label>
+                        <div class="row">
+                            <input type="date" name="event_end_date" required>
+                            <select name="event_end_session" required>
+                                <option value="">Session</option>
+                                <option value="Morning">Morning</option>
+                                <option value="Evening">Evening</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <!-- QUOTED AMOUNT -->
-                <div class="field-group">
-                    <label>Total / Quoted Amount</label>
-                    <input type="number" name="total_amount" placeholder="Quoted amount (₹)" min="0" required>
-                </div>
+                    <!-- QUOTED AMOUNT -->
+                    <div class="field-group">
+                        <label>Total / Quoted Amount</label>
+                        <input type="number" name="total_amount" placeholder="Quoted amount (₹)" min="0" required>
+                    </div>
 
-                <!-- FOLLOW UP -->
-                <div class="field-group">
-                    <label>Follow-up Date (optional)</label>
-                    <input type="date" name="follow_up_date">
-                </div>
+                    <!-- FOLLOW UP -->
+                    <div class="field-group">
+                        <label>Follow-up Date</label>
+                        <input type="date" name="follow_up_date">
+                    </div>
 
-                <input type="text" name="event_location" placeholder="Event Location" required>
+                    <input type="text" name="event_location" placeholder="Event Location" required>
 
-                <div class="form-actions">
-                    <button type="button" onclick="prevStep()">Back</button>
-                    <button type="submit">Create Lead</button>
+                    <div class="form-actions">
+                        <button type="button" onclick="prevStep()">Back</button>
+                        <button type="submit">Create Lead</button>
+                    </div>
                 </div>
             </div>
 
@@ -444,9 +444,9 @@
         <div class="payment-header">
             <h3>Advance Payment</h3>
             <button class="close-btn" onclick="closePaymentModal()">×</button>
-           
+
         </div>
-         <div class="form-toast" id="paymentToast"></div>
+        <div class="form-toast" id="paymentToast"></div>
 
         <p class="payment-info">
             Enter the <strong>quoted amount</strong> and any <strong>advance paid</strong> by the client.
