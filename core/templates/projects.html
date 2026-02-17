@@ -548,7 +548,7 @@
 
           <span class="overview-date">{{ p.lead.event_start_date }} – {{ p.lead.event_end_date }}</span>
 
-          <span>{{ p.lead.follow_up_date|default:"—" }}</span>
+          <span  class="due-date">{{ p.lead.follow_up_date|default:"—" }}</span>
 
           <span class="overview-chips">
             {% for label in p.pending_list %}

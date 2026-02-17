@@ -21,6 +21,7 @@ document.querySelectorAll(".card").forEach(card => {
 });
 
 document.querySelectorAll(".column").forEach(column => {
+   
      // ✅ REQUIRED: allow drop
     column.addEventListener("dragover", e => {
         e.preventDefault();           // 🔥 THIS LINE IS MANDATORY
@@ -63,8 +64,9 @@ if (sourceColumn !== column) {
         currentLeadId = leadId;
         openPaymentModal(leadId);
     } else {
-        updateStatus(leadId, status);
+       // updateStatus(leadId, status);
     }
+    const order = [...column.querySelectorAll(".card")].map( (card, index) => ({ id: card.dataset.id, position: index }) ); const csrfToken = document.getElementById("csrf_token").value; fetch("/update-position/", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken }, body: JSON.stringify({ order }) });
 });
 
 });
@@ -90,31 +92,85 @@ function closePaymentModal() {
     currentLeadId = null;
 }
 
-function submitPayment() {
-     const toast = document.getElementById("paymentToast");
-  toast.style.display = "none";
-    const total = document.getElementById("totalAmount").value;
-    const paid = document.getElementById("paidAmount").value;
-      if (!total || !paid) {
-    toast.innerText = "Both total amount and advance paid are required";
-    toast.style.display = "block";
-    return;
-  }
+// function submitPayment() {
+//      const toast = document.getElementById("paymentToast");
+//   toast.style.display = "none";
+//     const total = document.getElementById("totalAmount").value;
+//     const paid = document.getElementById("paidAmount").value;
+//       if (!total || !paid) {
+//     toast.innerText = "Both total amount and advance paid are required";
+//     toast.style.display = "block";
+//     return;
+//   }
 
+//     updateStatus(currentLeadId, "ACCEPTED", total, paid);
+
+//     const card = document.querySelector(`.card[data-id="${currentLeadId}"]`);
+//     if (!card) return;
+
+//     // Remove quoted row if exists
+//     const quoted = card.querySelector(".quoted-row");
+//     if (quoted) quoted.remove();
+
+//     // Remove existing paid row
+//     const existingPaid = card.querySelector(".paid-row");
+//     if (existingPaid) existingPaid.remove();
+
+//     // Add paid amount row (only if entered)
+//     if (paid) {
+//         const paidRow = document.createElement("div");
+//         paidRow.className = "card-row paid-row";
+//         paidRow.innerHTML = `
+//             <img src="/static/icons/rupee.svg">
+//             <span>Paid : ₹ ${paid}</span>
+//         `;
+//         card.appendChild(paidRow);
+//     }
+
+//     document.getElementById("paymentModal").style.display = "none";
+// }
+
+
+function submitPayment() {
+    const toast = document.getElementById("paymentToast");
+    toast.style.display = "none";
+
+    const total = Number(document.getElementById("totalAmount").value);
+    const paid = Number(document.getElementById("paidAmount").value);
+
+    // ❌ empty check
+    if (!total || !paid) {
+        toast.innerText = "Both total amount and advance paid are required";
+        toast.style.display = "block";
+        return;
+    }
+
+    // ❌ negative / zero check
+    if (total <= 0 || paid <= 0) {
+        toast.innerText = "Amount cannot be negative or zero";
+        toast.style.display = "block";
+        return;
+    }
+
+    // ❌ paid > total check (optional but smart)
+    if (paid > total) {
+        toast.innerText = "Advance paid cannot be greater than total amount";
+        toast.style.display = "block";
+        return;
+    }
+
+    // ✅ proceed
     updateStatus(currentLeadId, "ACCEPTED", total, paid);
 
     const card = document.querySelector(`.card[data-id="${currentLeadId}"]`);
     if (!card) return;
 
-    // Remove quoted row if exists
     const quoted = card.querySelector(".quoted-row");
     if (quoted) quoted.remove();
 
-    // Remove existing paid row
     const existingPaid = card.querySelector(".paid-row");
     if (existingPaid) existingPaid.remove();
 
-    // Add paid amount row (only if entered)
     if (paid) {
         const paidRow = document.createElement("div");
         paidRow.className = "card-row paid-row";
@@ -127,7 +183,6 @@ function submitPayment() {
 
     document.getElementById("paymentModal").style.display = "none";
 }
-
 
 function updateStatus(leadId, status, total=null, paid=null) {
 
@@ -240,7 +295,10 @@ document.getElementById("leadForm").addEventListener("submit", function (e) {
   if (!f.phone.value.trim())
     return showToast("Phone number is required");
 
-  if (!f.email.value.trim() || !emailRegex.test(f.email.value))
+    if (!f.email.value.trim())
+    return showToast("Email is required");
+
+  if (!emailRegex.test(f.email.value.trim()))
     return showToast("Enter a valid email address");
 
   if (!f.event_type.value.trim())
@@ -251,6 +309,8 @@ document.getElementById("leadForm").addEventListener("submit", function (e) {
 
   if (!f.event_end_date.value || !f.event_end_session.value)
     return showToast("Event end date & session required");
+ if (!f.follow_up_date.value)
+    return showToast("Follow-up date is required");
 
   if (!f.event_location.value.trim())
     return showToast("Event location is required");
@@ -294,6 +354,9 @@ function closeLeadForm() {
 
     const form = document.getElementById("leadForm");
     form.reset();
+    const toast = document.getElementById("formToast");
+    toast.innerText = "";
+    toast.style.display = "none";
 
     // clear lead id
     document.getElementById("lead_id").value = "";

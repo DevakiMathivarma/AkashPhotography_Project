@@ -129,10 +129,10 @@ const toggle = document.getElementById("togglePassword");
 toggle.addEventListener("click", () => {
   if (passwordInput.type === "password") {
     passwordInput.type = "text";
-    toggle.src = "{% static 'images/eyeclose.png' %}";
+    toggle.src = "{% static 'images/eye.png' %}";
   } else {
     passwordInput.type = "password";
-    toggle.src = "{% static 'images/eye.png' %}";
+    toggle.src = "{% static 'images/eyeclose.png' %}";
   }
 });
 
@@ -144,7 +144,7 @@ toggle.addEventListener("click", () => {
   {% for message in messages %}
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-     {% if "Invalid username or password" in message %}
+     {% if "Invalid username or password." in message %}
       document.getElementById("passwordError").innerText =
         "Username or password is incorrect.";
       document.getElementById("passwordError").style.display = "block";

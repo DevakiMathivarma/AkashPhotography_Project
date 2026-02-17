@@ -610,6 +610,9 @@ function deleteTask(id) {
 function finishAssignment() {
     closeTaskPopup();
     moveCard("PRE");
+     setTimeout(() => {
+        window.location.reload();
+    }, 100);
 }
 
 /* ================= HELPERS ================= */

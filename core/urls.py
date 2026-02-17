@@ -21,7 +21,7 @@ from .views import (
     # team member
      team_members_view, create_team_member,project_details_api,
     #  task assigning
-    project_tasks_api,add_project_task,update_project_task,delete_project_task,
+    project_tasks_api,add_project_task,update_position,update_project_task,delete_project_task,
     # sessionpage
     sessions_view
 )
@@ -41,6 +41,8 @@ urlpatterns = [
     path("leads/save/", save_lead, name="save_lead"),
     path("leads/update-status/", update_lead_status, name="update_lead_status"),
     path("leads/get/<int:lead_id>/", get_lead, name="get_lead"),
+    path("update-position/", update_position, name="update_position"),
+
 
     # ==========================
     # PROJECTS

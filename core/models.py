@@ -14,6 +14,7 @@ class Lead(models.Model):
     client_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
     email = models.EmailField(blank=True, null=True)
+    position = models.PositiveIntegerField(default=0)
 
     # EVENT DETAILS
 # EVENT DETAILS

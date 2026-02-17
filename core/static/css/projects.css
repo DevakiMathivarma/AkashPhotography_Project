@@ -870,10 +870,11 @@
   display: flex;
   justify-content: center;
   gap: 8px;
+  margin-bottom: 15px;
 }
 
 .figma-tabs span {
-  padding: 6px 14px;
+  padding: 10px 14px;
   border-radius: 999px;
   background: #f1f1f1;
   font-size: 13px;
@@ -1264,7 +1265,9 @@
 
 .task-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  font-size: 20px;
+  padding:20px;
 }
 
 .save-btn {
@@ -1829,9 +1832,9 @@ color: black;
   display: grid;
   grid-template-columns:
     120px        /* Project ID */
-    2.2fr        /* Project Name */
-    1.5fr        /* Event Date */
-    1.2fr        /* Assigned To */
+    2fr        /* Project Name */
+    2fr        /* Event Date */
+    2fr        /* Assigned To */
     2fr;         /* Pending Tasks */
 
   font-weight: 600;
@@ -1869,9 +1872,9 @@ width:80%;
   display: grid;
   grid-template-columns:
     120px
-    2.2fr
-    1.5fr
-    1.2fr
+    2fr
+    2fr
+    2fr
     2fr;
 
   align-items: center;
@@ -1889,6 +1892,9 @@ width:80%;
 }
 .overview-date{
   font-size: 13px;
+}
+.due-date{
+   font-size: 13px;
 }
 /* Optional subtle hover (figma-like) */
 .overview-row:hover {

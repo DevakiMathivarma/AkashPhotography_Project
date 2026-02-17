@@ -226,10 +226,10 @@ def leads_view(request):
     # =====================================================
     # SPLIT FOR KANBAN
     # =====================================================
-    new_leads = leads.filter(status="NEW")
-    follow_up_leads = leads.filter(status="FOLLOW_UP")
-    accepted_leads = leads.filter(status="ACCEPTED")
-    lost_leads = leads.filter(status="LOST")
+    new_leads = leads.filter(status="NEW").order_by('position')
+    follow_up_leads = leads.filter(status="FOLLOW_UP").order_by('position')
+    accepted_leads = leads.filter(status="ACCEPTED").order_by('position')
+    lost_leads = leads.filter(status="LOST").order_by('position')
 
     # =====================================================
     # CONTEXT
@@ -264,6 +264,16 @@ def leads_view(request):
 
 
 
+import json
+from django.http import JsonResponse
+
+def update_position(request):
+    data = json.loads(request.body)
+
+    for item in data["order"]:
+        Lead.objects.filter(id=item["id"]).update(position=item["position"])
+
+    return JsonResponse({"ok": True})
 
 
 from django.http import JsonResponse
@@ -313,7 +323,7 @@ def save_lead(request):
                 status=400
             )
 
-
+from django.utils import timezone
 def update_lead_status(request):
     if request.method == "POST":
         lead = Lead.objects.get(id=request.POST["lead_id"])
@@ -322,7 +332,9 @@ def update_lead_status(request):
         if request.POST.get("paid_amount"):
             lead.paid_amount = request.POST["paid_amount"]
             lead.total_amount = request.POST["total_amount"]
+      
 
+        lead.created_at = timezone.now()
         lead.save()
         return JsonResponse({
     "success": True,
@@ -521,8 +533,10 @@ def projects_view(request):
     # =====================
     # CONTEXT
     # =====================
+    projects = projects.order_by('-created_at')
     context = {
         # PROJECT COLUMNS
+       
         "assigned": projects.filter(status="ASSIGNED"),
         "pre_cards": build_pre_card_data(projects.filter(status="PRE")),
         "selection": projects.filter(status="SELECTION"),
@@ -552,6 +566,7 @@ from .models import Project
 def update_project_status(request):
     project = get_object_or_404(Project, id=request.POST.get("project_id"))
     project.status = request.POST.get("status")
+    project.created_at = timezone.now()
     project.save()
 
     return JsonResponse({"success": True})
@@ -766,11 +781,24 @@ def project_details_api(request, project_id):
 
     for member in members:
         overlapping_projects = Project.objects.filter(
-            team_assignments__member=member
-        ).exclude(id=project.id).filter(
-            Q(lead__event_start_date__lte=end_date) &
-            Q(lead__event_end_date__gte=start_date)
-        )
+    team_assignments__member=member,
+    status__in=["PRE", "SELECTION", "POST", "COMPLETED"]  # 🔥 IMPORTANT
+).exclude(id=project.id).filter(
+    Q(lead__event_start_date__lte=end_date) &
+    Q(lead__event_end_date__gte=start_date) &
+    (
+        Q(lead__event_start_session__in=[
+            lead.event_start_session,
+            lead.event_end_session
+        ]) |
+        Q(lead__event_end_session__in=[
+            lead.event_start_session,
+            lead.event_end_session
+        ])
+    )
+)
+
+
 
         data = {
             "id": member.id,
